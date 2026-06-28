@@ -15,4 +15,4 @@ jobs:
         with:
           context: .
           push: true
-          tags: yourname/n8n-custom:1.123.61
+          tags: ${{ secrets.DOCKERHUB_USERNAME }}/n8n-custom:1.123.61
