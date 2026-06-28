@@ -1,23 +1,23 @@
-FROM n8nio/n8n:1.123.61
+FROM node:22-bookworm-slim
 USER root
 
-# Python + pandas/lxml 컴파일에 필요한 빌드 도구
-RUN apk add --update --no-cache \
-    python3 \
-    py3-pip \
-    build-base \
-    python3-dev \
-    gfortran \
-    openblas-dev \
-    libxml2-dev \
-    libxslt-dev
+RUN apt-get update && apt-get install -y \
+    python3 python3-pip python3-venv \
+    build-essential \
+    graphicsmagick \
+    && rm -rf /var/lib/apt/lists/*
+
+# n8n 1.123.61 설치
+RUN npm install -g n8n@1.123.61
 
 # Python Function 커뮤니티 노드
-RUN cd /usr/local/lib/node_modules/n8n && npm install n8n-nodes-python
+RUN npm install -g n8n-nodes-python
 
-# 패키지 영구 설치
+# Python 패키지 (debian이라 pandas/lxml 미리 빌드된 wheel로 깔림 — 컴파일 없음)
 COPY requirements.txt /tmp/requirements.txt
 RUN pip3 install --break-system-packages --no-cache-dir -r /tmp/requirements.txt \
     && rm /tmp/requirements.txt
 
-USER node
+ENV N8N_PORT=5678
+EXPOSE 5678
+CMD ["n8n"]
